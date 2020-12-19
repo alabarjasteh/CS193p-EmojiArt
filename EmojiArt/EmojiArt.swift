@@ -13,8 +13,8 @@ struct EmojiArt {
     
     struct Emoji: Identifiable {
         let text: String
-        var x: Int
-        var y: Int
+        var x: Int // offset form center
+        var y: Int // offset from center
         var size: Int
         let id: Int
         

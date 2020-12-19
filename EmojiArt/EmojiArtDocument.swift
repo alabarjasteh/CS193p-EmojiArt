@@ -15,6 +15,8 @@ class EmojiArtDocument: ObservableObject {
     
     @Published private(set) var backgroundImage: UIImage?
     
+    var emojis: [EmojiArt.Emoji] { emojiArt.emojis }
+    
     // MARK: - Intent(s)
     
     func addEmoji(_ emoji: String, at location: CGPoint, size: CGFloat) {
@@ -54,4 +56,9 @@ class EmojiArtDocument: ObservableObject {
         }
     }
     
+}
+
+extension EmojiArt.Emoji {
+    var fontSize: CGFloat { CGFloat(self.size) }
+    var location: CGPoint { CGPoint(x: CGFloat(x), y: CGFloat(y)) }
 }
