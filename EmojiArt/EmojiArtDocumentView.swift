@@ -29,23 +29,24 @@ struct EmojiArtDocumentView: View {
                             .scaleEffect(zoomScale)
                             .offset(panOffset )
                     )
-                        .gesture(doubleTapToZoom(in: geometry.size))
+                    .gesture(doubleTapToZoom(in: geometry.size))
                     ForEach(document.emojis) { emoji in
                         Text(emoji.text)
                             .font(animatableWithSize: emoji.fontSize * zoomScale)
                             .position(position(for: emoji, in: geometry.size))
                     }
-                    .clipped()
-                    .gesture(panGesture())
-                    .gesture(zoomGesture())
-                    .edgesIgnoringSafeArea([.horizontal, .bottom])
-                    .onDrop(of: ["public.image", "public.text"], isTargeted: nil) { providers, location in
-                        var location = geometry.convert(location, from: .global)
-                        location = CGPoint(x: location.x - geometry.size.width/2, y: location.y - geometry.size.height/2)
-                        location = CGPoint(x: location.x - panOffset.width, y: location.y - panOffset.height)
-                        location = CGPoint(x: location.x / zoomScale, y: location.y / zoomScale)
-                        return drop(providers: providers, at: location)
-                    }
+                    
+                }
+                .clipped()
+                .gesture(panGesture())
+                .gesture(zoomGesture())
+                .edgesIgnoringSafeArea([.horizontal, .bottom])
+                .onDrop(of: ["public.image", "public.text"], isTargeted: nil) { providers, location in
+                    var location = geometry.convert(location, from: .global)
+                    location = CGPoint(x: location.x - geometry.size.width/2, y: location.y - geometry.size.height/2)
+                    location = CGPoint(x: location.x - panOffset.width, y: location.y - panOffset.height)
+                    location = CGPoint(x: location.x / zoomScale, y: location.y / zoomScale)
+                    return drop(providers: providers, at: location)
                 }
             }
         }
@@ -102,7 +103,7 @@ struct EmojiArtDocumentView: View {
             steadyStateZoomScale = min(vZoom, hZoom)
         }
     }
- 
+    
     private func position(for emoji: EmojiArt.Emoji, in size: CGSize) -> CGPoint {
         var location = emoji.location
         location = CGPoint(x: location.x * zoomScale, y: location.y * zoomScale )
