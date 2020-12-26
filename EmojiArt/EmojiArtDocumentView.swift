@@ -26,14 +26,27 @@ struct EmojiArtDocumentView: View {
                 ZStack {
                     Color.white.overlay(
                         OptionalImage(uiImage: document.backgroundImage)
-                            .scaleEffect(zoomScale)
-                            .offset(panOffset )
+                            .scaleEffect(selectedEmojis.isEmpty ? zoomScale : steadyStateZoomScale)
+                            .offset(panOffset)
+                            
                     )
-                    .gesture(doubleTapToZoom(in: geometry.size))
+                    .gesture(doubleTapToZoom(in: geometry.size).exclusively(before: deselectEmojisGesture()))
                     ForEach(document.emojis) { emoji in
                         Text(emoji.text)
-                            .font(animatableWithSize: emoji.fontSize * zoomScale)
-                            .position(position(for: emoji, in: geometry.size))
+                            .border(Color.blue, width: selectedEmojis.contains(emoji) ? 2.0 : 0.0)
+                            .font(animatableWithSize: emoji.fontSize * (selectedEmojis.contains(emoji) || selectedEmojis.isEmpty ? zoomScale : steadyStateZoomScale))
+                            .position(position(for: emoji, in: geometry.size, zoomScale: selectedEmojis.isEmpty ? zoomScale : steadyStateZoomScale))
+                            .offset(selectedEmojis.contains(emoji) ? gestureEmojiOffset * zoomScale : CGSize.zero)
+                            .gesture(emojiToggleGesture(for: emoji))
+                            .gesture(emojisReplacementGesture(initiatedOn: emoji))
+                            .contextMenu {
+                                Button(action: {
+                                    deleteEmoji(emoji)
+                                }) {
+                                    Text("Delete")
+                                    Image(systemName: "trash")
+                                }
+                            }
                     }
                     
                 }
@@ -52,6 +65,50 @@ struct EmojiArtDocumentView: View {
         }
     }
     
+    private func deleteEmoji(_ emoji: EmojiArt.Emoji) {
+        document.deleteEmoji(emoji)
+    }
+    
+    private func deselectEmojisGesture() -> some Gesture {
+        TapGesture(count: 1)
+            .onEnded {
+                selectedEmojis.removeAll()
+            }
+    }
+    
+    @State private var selectedEmojis = Set<EmojiArt.Emoji>()
+    
+    private func emojiToggleGesture(for emoji: EmojiArt.Emoji) -> some Gesture {
+        TapGesture(count: 1)
+            .onEnded {
+                if selectedEmojis.contains(emoji) {
+                    selectedEmojis.remove(emoji)
+                } else {
+                    selectedEmojis.insert(emoji)
+                }
+            }
+    }
+    
+    @GestureState private var gestureEmojiOffset: CGSize = .zero
+    
+    private func emojisReplacementGesture(initiatedOn emoji: EmojiArt.Emoji) -> some Gesture {
+        DragGesture()
+            .updating($gestureEmojiOffset) { lastestDragGestureValue, gestureEmojiOffset, transaction in
+                if selectedEmojis.contains(emoji) {
+                    gestureEmojiOffset = lastestDragGestureValue.translation / zoomScale
+                } else {
+                    gestureEmojiOffset = .zero
+                }
+            }
+            .onEnded { finalDragGestureValue in
+                if selectedEmojis.contains(emoji) {
+                    for emoji in selectedEmojis {
+                        document.moveEmoji(emoji, by: finalDragGestureValue.translation / zoomScale)
+                    }
+                }
+            }
+    }
+    
     @State private var steadyStateZoomScale: CGFloat = 1.0
     @GestureState private var gestureZoomScale: CGFloat = 1.0
     
@@ -65,7 +122,13 @@ struct EmojiArtDocumentView: View {
                 ourGestureStateInOut = lastestGestureScale
             }
             .onEnded { finalGestureScale in
-                steadyStateZoomScale *= finalGestureScale
+                if selectedEmojis.isEmpty {
+                    steadyStateZoomScale *= finalGestureScale
+                } else {
+                    for emoji in selectedEmojis {
+                        document.scaleEmoji(emoji, by: finalGestureScale)
+                    }
+                }
             }
     }
     
@@ -104,7 +167,7 @@ struct EmojiArtDocumentView: View {
         }
     }
     
-    private func position(for emoji: EmojiArt.Emoji, in size: CGSize) -> CGPoint {
+    private func position(for emoji: EmojiArt.Emoji, in size: CGSize, zoomScale: CGFloat) -> CGPoint {
         var location = emoji.location
         location = CGPoint(x: location.x * zoomScale, y: location.y * zoomScale )
         location = CGPoint(x: location.x + size.width/2, y: location.y + size.height/2)

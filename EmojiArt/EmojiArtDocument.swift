@@ -11,7 +11,7 @@ class EmojiArtDocument: ObservableObject {
      
     static let palette: String = "🌎🌻🐼🥐🍉🥬"
     
-    @Published private var emojiArt: EmojiArt = EmojiArt() {
+    @Published private var emojiArt: EmojiArt {
         didSet {
             UserDefaults.standard.set(emojiArt.json, forKey: EmojiArtDocument.untitled)
         }
@@ -32,6 +32,10 @@ class EmojiArtDocument: ObservableObject {
     
     func addEmoji(_ emoji: String, at location: CGPoint, size: CGFloat) {
         emojiArt.addEmoji(emoji, x: Int(location.x), y: Int(location.y), size: Int(size))
+    }
+    
+    func deleteEmoji(_ emoji: EmojiArt.Emoji) {
+        emojiArt.deleteEmoji(emoji)
     }
     
     func moveEmoji(_ emoji: EmojiArt.Emoji, by offset: CGSize) {
@@ -72,4 +76,14 @@ class EmojiArtDocument: ObservableObject {
 extension EmojiArt.Emoji {
     var fontSize: CGFloat { CGFloat(self.size) }
     var location: CGPoint { CGPoint(x: CGFloat(x), y: CGFloat(y)) }
+}
+
+extension EmojiArt.Emoji {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
