@@ -12,6 +12,11 @@ struct EmojiArtDocumentView: View {
     
     @State private var chosenPalette: String = ""
     
+    init(document: EmojiArtDocument) {
+        self.document = document
+        _chosenPalette = State(wrappedValue: self.document.defaultPalette)
+    }
+    
     var body: some View {
         VStack {
             HStack {
@@ -41,12 +46,6 @@ struct EmojiArtDocumentView: View {
                     } else {
                         ForEach(document.emojis) { emoji in
                             Text(emoji.text)
-                                .border(Color.blue, width: selectedEmojis.contains(emoji) ? 2.0 : 0.0)
-                                .font(animatableWithSize: emoji.fontSize * (selectedEmojis.contains(emoji) || selectedEmojis.isEmpty ? zoomScale : steadyStateZoomScale))
-                                .position(position(for: emoji, in: geometry.size, zoomScale: selectedEmojis.isEmpty ? zoomScale : steadyStateZoomScale))
-                                .offset(selectedEmojis.contains(emoji) ? gestureEmojiOffset * zoomScale : CGSize.zero)
-                                .gesture(emojiToggleGesture(for: emoji))
-                                .gesture(emojisReplacementGesture(initiatedOn: emoji))
                                 .contextMenu {
                                     Button(action: {
                                         deleteEmoji(emoji)
@@ -55,9 +54,14 @@ struct EmojiArtDocumentView: View {
                                         Image(systemName: "trash")
                                     }
                                 }
+                                .border(Color.blue, width: selectedEmojis.contains(emoji) ? 2.0 : 0.0)
+                                .font(animatableWithSize: emoji.fontSize * (selectedEmojis.contains(emoji) || selectedEmojis.isEmpty ? zoomScale : steadyStateZoomScale))
+                                .position(position(for: emoji, in: geometry.size, zoomScale: selectedEmojis.isEmpty ? zoomScale : steadyStateZoomScale))
+                                .offset(selectedEmojis.contains(emoji) ? gestureEmojiOffset * zoomScale : CGSize.zero)
+                                .gesture(emojiToggleGesture(for: emoji))
+                                .gesture(emojisReplacementGesture(initiatedOn: emoji))
                         }
                     }
-                    
                 }
                 .clipped()
                 .gesture(panGesture())
@@ -73,6 +77,13 @@ struct EmojiArtDocumentView: View {
                     location = CGPoint(x: location.x / zoomScale, y: location.y / zoomScale)
                     return drop(providers: providers, at: location)
                 }
+                .navigationBarItems(trailing: Button(action: {
+                    if let url = UIPasteboard.general.url {
+                        document.backgroundURL = url
+                    }
+                }, label: {
+                    Image(systemName: "doc.on.clipboard").imageScale(.large)
+                }))
             }
         }
     }
@@ -175,7 +186,7 @@ struct EmojiArtDocumentView: View {
     }
     
     private func zoomToFit(_ image: UIImage?, in size: CGSize) {
-        if let image = image, size.width > 0, size.height > 0 {
+        if let image = image, size.width > 0, size.height > 0, size.height > 0, size.width > 0 {
             let vZoom = size.width / image.size.width
             let hZoom = size.height / image.size.height
             steadyStatePanOffset = .zero
