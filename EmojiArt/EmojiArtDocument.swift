@@ -40,6 +40,9 @@ class EmojiArtDocument: ObservableObject, Hashable, Identifiable
     
     @Published private(set) var backgroundImage: UIImage?
     
+    @Published var steadyStatePanOffset: CGSize = .zero
+    @Published var steadyStateZoomScale: CGFloat = 1.0
+    
     var emojis: [EmojiArt.Emoji] { emojiArt.emojis }
     
     // MARK: - Intent(s)
