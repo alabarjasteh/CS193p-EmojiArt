@@ -11,7 +11,7 @@ struct EmojiArt: Codable {
     var backgroundURL: URL?
     var emojis = [Emoji]()
     
-    struct Emoji: Identifiable, Codable, Hashable {
+    struct Emoji: Identifiable, Codable {
         let text: String
         var x: Int // offset form center
         var y: Int // offset from center

@@ -30,7 +30,6 @@ struct EmojiArtDocumentView: View {
                         }
                     }
                 }
-                .onAppear { chosenPalette = document.defaultPalette }
             }
             GeometryReader { geometry in
                 ZStack {

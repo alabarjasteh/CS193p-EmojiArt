@@ -150,7 +150,7 @@ extension CGSize {
 
 extension String
 {
-    // returns ourself but with numbers appended to the end
+    // returns ourself but with numbers appended to the end 
     // if necessary to make ourself unique with respect to those other Strings
     func uniqued<StringCollection>(withRespectTo otherStrings: StringCollection) -> String
         where StringCollection: Collection, StringCollection.Element == String {
