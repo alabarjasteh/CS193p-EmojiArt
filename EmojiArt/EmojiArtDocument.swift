@@ -100,7 +100,7 @@ class EmojiArtDocument: ObservableObject, Hashable, Identifiable
     
     private func fetchBackgroundImageData() {
         backgroundImage = nil
-        if let url = emojiArt.backgroundURL {
+        if let url = emojiArt.backgroundURL?.imageURL {
             fetchImageCancellabe?.cancel()
             fetchImageCancellabe = URLSession.shared.dataTaskPublisher(for: url)
                 .map { data, urlResponse in UIImage(data: data) }

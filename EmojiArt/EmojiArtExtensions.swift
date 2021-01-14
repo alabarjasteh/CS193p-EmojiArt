@@ -26,7 +26,7 @@ extension Data {
 }
 
 extension URL {
-    var imageURL: URL {
+    var imageURL: URL { 
         // check to see if there is an embedded imgurl reference
         for query in query?.components(separatedBy: "&") ?? [] {
             let queryComponents = query.components(separatedBy: "=")
@@ -191,7 +191,7 @@ extension UIImage {
     // and then always prepend Application Support's URL upon use of the URL fragment
     // this function might also want to add a parameter for the compression quality
     // (currently it is best-quality compression)
-    func storeInFilesystem(name: String = "\(Date().timeIntervalSince1970)") -> URL? {
+    func storeInFilesystem(name: String = "\(Date().timeIntervalSince1970)") -> URL? { 
         var url = try? FileManager.default.url(
             for: .applicationSupportDirectory,
             in: .userDomainMask,
